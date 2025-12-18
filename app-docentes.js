@@ -238,55 +238,65 @@ document.getElementById('docenteForm').addEventListener('submit', async function
     e.preventDefault();
     if (!auth.currentUser) return alert("Debes estar logueado.");
 
+    const btnSubmit = e.target.querySelector('button[type="submit"]');
+    const originalText = btnSubmit.innerText;
+
+    // Captura de datos básicos
     const nombres = document.getElementById('form_nombres').value;
     const apellidos = document.getElementById('form_apellidos').value;
     const nombreCompleto = `${nombres} ${apellidos}`.trim();
+    
+    // CORRECCIÓN: Usar un ID que sí existe o validar su existencia
+    // Nota: 'hidden_file_input' está fuera del formulario en tu HTML
     const fileInput = document.getElementById('form_file'); 
 
-    // Lógica de subida a Google Drive
-    if (fileInput && fileInput.files.length > 0) {
-        const btnSubmit = e.target.querySelector('button[type="submit"]');
-        const originalText = btnSubmit.innerText;
-        try {
-            btnSubmit.innerText = "Subiendo archivo a Drive...";
-            btnSubmit.disabled = true;
+    try {
+        btnSubmit.innerText = "Procesando...";
+        btnSubmit.disabled = true;
+
+        // 1. Lógica de subida opcional (Solo si el input existe y tiene archivos)
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            btnSubmit.innerText = "Subiendo a Drive...";
             await uploadFileToDrive(fileInput.files[0], nombreCompleto);
-        } catch (error) {
-            console.error("Error en Drive:", error);
-            alert("Error al subir el archivo, pero se intentará guardar el perfil.");
-        } finally {
-            btnSubmit.innerText = originalText;
-            btnSubmit.disabled = false;
         }
-    }
 
-    const docenteData = {
-        NOMBRES: nombres,
-        APELLIDOS: apellidos,
-        BIO: document.getElementById('form_bio').value,
-        "CFP/UFP/Escuela": document.getElementById('form_escuela').value,
-        Celular: document.getElementById('form_celular').value,
-        "Correo institucional (@senati.pe)": document.getElementById('form_correo_inst').value,
-        "Correo personal": document.getElementById('form_correo_pers').value,
-        DNI: document.getElementById('form_dni').value,
-        ESPECIALIDAD: document.getElementById('form_especialidad').value,
-        "ID-SENATI": document.getElementById('form_id_senati').value,
-        NACIMIENTO: document.getElementById('form_nacimiento').value,
-        Skills: document.getElementById('form_skills').value,
-        fotoURL: document.getElementById('form_foto_url').value,
-        ownerUID: document.getElementById('form_owner_uid').value,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-    };
+        // 2. Preparación de objeto de datos
+        const docenteData = {
+            NOMBRES: nombres,
+            APELLIDOS: apellidos,
+            BIO: document.getElementById('form_bio').value,
+            "CFP/UFP/Escuela": document.getElementById('form_escuela').value,
+            Celular: document.getElementById('form_celular').value,
+            "Correo institucional (@senati.pe)": document.getElementById('form_correo_inst').value,
+            "Correo personal": document.getElementById('form_correo_pers').value,
+            DNI: document.getElementById('form_dni').value,
+            ESPECIALIDAD: document.getElementById('form_especialidad').value,
+            "ID-SENATI": document.getElementById('form_id_senati').value,
+            NACIMIENTO: document.getElementById('form_nacimiento').value,
+            Skills: document.getElementById('form_skills').value,
+            fotoURL: document.getElementById('form_foto_url').value,
+            ownerUID: document.getElementById('form_owner_uid').value,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
-    const task = currentDocenteId 
-        ? db.collection('docentes').doc(currentDocenteId).update(docenteData)
-        : db.collection('docentes').add(docenteData);
+        // 3. Ejecución del guardado (Async/Await para mayor seguridad)
+        if (currentDocenteId) {
+            await db.collection('docentes').doc(currentDocenteId).update(docenteData);
+        } else {
+            await db.collection('docentes').add(docenteData);
+        }
 
-    task.then(() => {
         alert("Perfil guardado con éxito.");
         showSection('admin-dashboard');
         if (fileInput) fileInput.value = ""; 
-    }).catch(err => alert("Error en Firestore: " + err.message));
+
+    } catch (error) {
+        console.error("Error en el proceso:", error);
+        alert("Error al guardar: " + error.message);
+    } finally {
+        btnSubmit.innerText = originalText;
+        btnSubmit.disabled = false;
+    }
 });
 
 function editDocente(id) {
