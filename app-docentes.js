@@ -265,7 +265,8 @@ document.getElementById('docenteForm').addEventListener('submit', async function
             NOMBRES: nombres,
             APELLIDOS: apellidos,
             BIO: document.getElementById('form_bio').value,
-            "CFP/UFP/Escuela": document.getElementById('form_escuela').value,
+            // CAMBIO AQUÍ: Cambiamos "/" por "_" para cumplir con las reglas de Firebase
+            CFP_UFP_Escuela: document.getElementById('form_escuela').value, 
             Celular: document.getElementById('form_celular').value,
             "Correo institucional (@senati.pe)": document.getElementById('form_correo_inst').value,
             "Correo personal": document.getElementById('form_correo_pers').value,
@@ -306,7 +307,7 @@ function editDocente(id) {
     document.getElementById('form_nombres').value = d.NOMBRES || "";
     document.getElementById('form_apellidos').value = d.APELLIDOS || "";
     document.getElementById('form_bio').value = d.BIO || "";
-    document.getElementById('form_escuela').value = d["CFP/UFP/Escuela"] || "";
+    document.getElementById('form_escuela').value = d["CFP_UFP_Escuela"] || "";
     document.getElementById('form_celular').value = d.Celular || "";
     document.getElementById('form_correo_inst').value = d["Correo institucional (@senati.pe)"] || "";
     document.getElementById('form_correo_pers').value = d["Correo personal"] || "";
