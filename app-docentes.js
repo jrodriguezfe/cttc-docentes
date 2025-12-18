@@ -105,7 +105,7 @@ function cargarDirectorio() {
                                     <i class="bi bi-envelope-at text-success"></i> ${correoSenati}
                                 </a>
                             </div>` : ''}
-                            <p class="text-muted small flex-grow-1">${bio.substring(0, 200)}${bio.length > 200 ? '...' : ''}</p>
+                            <p class="text-muted small flex-grow-1">${bio.substring(0, 250)}${bio.length > 200 ? '...' : ''}</p>
                             ${habilidades ? `
                             <div class="mb-3">
                                 <small class="fw-bold text-acento">Habilidades técnicas:</small><br>
