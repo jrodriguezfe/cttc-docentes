@@ -1,0 +1,178 @@
+/* style.css - cttc-docentes | Proyecto: catalogo-cttc-senati */
+
+:root {
+    --color-principal: #000000;       /* Negro Corporativo */
+    --color-acento-senati: #008f39;   /* Verde SENATI */
+    --color-acento-hover: #00702d;    /* Verde Oscuro para hover */
+    --color-acento-suave: #e8f5e9;    /* Verde claro para fondos y badges */
+    --color-fondo: #f4f7f6;           /* Gris muy claro para el fondo general */
+    --color-texto: #333333;
+    --color-asistencia: #ffc107;      /* Amarillo para el botón de asistencia */
+    --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Navegación --- */
+.bg-principal {
+    background-color: var(--color-principal) !important;
+}
+
+.nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--color-acento-senati) !important;
+}
+
+/* --- Tarjetas de Docentes (Directorio) --- */
+.card-docente {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #ffffff;
+    box-shadow: var(--shadow-card);
+}
+
+.card-docente:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-hover);
+}
+
+.img-docente-container {
+    height: 300px;
+    overflow: hidden;
+    background-color: #eee;
+}
+
+.img-docente {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.card-docente:hover .img-docente {
+    transform: scale(1.08);
+}
+
+.badge-especialidad {
+    background-color: var(--color-acento-suave);
+    color: var(--color-acento-senati);
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+/* --- Botones --- */
+.btn-acento-principal {
+    background-color: var(--color-acento-senati);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-acento-principal:hover {
+    background-color: var(--color-acento-hover);
+    color: white;
+    transform: scale(1.02);
+}
+
+/* Botón de Asistencia Especial */
+.btn-warning {
+    background-color: var(--color-asistencia);
+    border: none;
+    color: #000;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.text-acento {
+    color: var(--color-acento-senati) !important;
+}
+
+/* --- Animaciones SPA --- */
+.spa-section {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Panel Administrativo --- */
+.admin-table {
+    background: white;
+    border-radius: 10px;
+    overflow-x: auto; /* Para tablas en móvil */
+    box-shadow: var(--shadow-card);
+}
+
+/* Estilo para el input de archivos en Drive */
+input[type="file"].form-control {
+    border: 2px dashed var(--color-acento-senati);
+    background-color: var(--color-acento-suave);
+    padding: 20px;
+    text-align: center;
+}
+
+/* --- Footer --- */
+.site-footer {
+    background-color: var(--color-principal);
+    color: white;
+    padding: 25px 0;
+    margin-top: auto;
+}
+
+/* --- Responsividad --- */
+@media (max-width: 768px) {
+    .display-5 {
+        font-size: 2rem;
+    }
+    .img-docente-container {
+        height: 250px;
+    }
+    .navbar-brand img {
+        height: 50px !important;
+    }
+    .d-flex.flex-wrap.gap-2 {
+        flex-direction: column; /* Botones apilados en móvil */
+    }
+}
+
+.btn-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    transition: all 0.3s ease;
+}
+
+.btn-info:hover {
+    background-color: #0baccc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
