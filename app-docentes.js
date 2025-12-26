@@ -87,7 +87,7 @@ function cargarDirectorio() {
             const especialidad = d.ESPECIALIDAD || 'Especialista';
             const bio = d.BIO || 'Sin biografía disponible.';
             const foto = d.fotoURL || 'https://placehold.co/400x400?text=Docente';
-            const correoSenati = d["Correo institucional (@senati.pe)"] || "";
+            
             const habilidades = d.Skills || "";
 
             container.innerHTML += `
@@ -99,12 +99,7 @@ function cargarDirectorio() {
                         <div class="card-body p-4 d-flex flex-column">
                             <span class="badge-especialidad mb-2">${especialidad}</span>
                             <h4 class="fw-bold mb-1">${nombreCompleto}</h4>
-                            ${correoSenati ? `
-                            <div class="mb-3">
-                                <a href="mailto:${correoSenati}" class="text-decoration-none small text-muted">
-                                    <i class="bi bi-envelope-at text-success"></i> ${correoSenati}
-                                </a>
-                            </div>` : ''}
+                           
                             <p class="text-muted small flex-grow-1">${bio.substring(0, 250)}${bio.length > 200 ? '...' : ''}</p>
                             ${habilidades ? `
                             <div class="mb-3">
