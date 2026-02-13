@@ -75,9 +75,14 @@
         <section id="admin-dashboard" class="spa-section" style="display:none;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Administración Docente</h2>
-                <button class="btn btn-acento-principal d-none" id="btn-nuevo-docente" onclick="showSection('admin-form', true)">
-                    <i class="bi bi-person-plus-fill"></i> Nuevo Docente
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-dark d-none" id="btn-copy-emails" onclick="copyAllEmails()">
+                        <i class="bi bi-clipboard-check"></i> Copiar Correos
+                    </button>
+                    <button class="btn btn-acento-principal d-none" id="btn-nuevo-docente" onclick="showSection('admin-form', true)">
+                        <i class="bi bi-person-plus-fill"></i> Nuevo Docente
+                    </button>
+                </div>
             </div>
             <div id="admin-list-container" class="admin-table p-3"></div>
         </section>
@@ -98,17 +103,24 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label fw-bold">DNI</label>
                         <input type="text" class="form-control" id="form_dni">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label fw-bold">ID-SENATI</label>
                         <input type="text" class="form-control" id="form_id_senati">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label class="form-label fw-bold">Fecha Nacimiento</label>
-                        <input type="text" class="form-control" id="form_nacimiento" placeholder="DD-MM-YYYY">
+                        <input type="date" class="form-control" id="form_nacimiento">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">Estado</label>
+                        <select class="form-select" id="form_estado">
+                            <option value="ACTIVO">ACTIVO</option>
+                            <option value="DESACTIVO">DESACTIVO</option>
+                        </select>
                     </div>
                 </div>
 

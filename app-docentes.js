@@ -83,6 +83,9 @@ function cargarDirectorio() {
 
         snapshot.forEach(doc => {
             const d = doc.data();
+            // Solo mostrar si el estado es ACTIVO (o si no tiene estado definido aún)
+            if (d.Estado === "DESACTIVO") return;
+
             const nombreCompleto = `${d.NOMBRES || ''} ${d.APELLIDOS || ''}`;
             const especialidad = d.ESPECIALIDAD || 'Especialista';
             const bio = d.BIO || 'Sin biografía disponible.';
@@ -140,6 +143,11 @@ function loadAdminList() {
         btnNuevoDocente.classList.toggle('d-none', user.uid !== SUPER_ADMIN_UID);
     }
 
+    const btnCopyEmails = document.getElementById('btn-copy-emails');
+    if (btnCopyEmails) {
+        btnCopyEmails.classList.toggle('d-none', user.uid !== SUPER_ADMIN_UID);
+    }
+
     container.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary"></div></div>';
 
     let query;
@@ -174,6 +182,10 @@ function loadAdminList() {
         allDocentes.forEach(d => {
             const nombreDocente = `${d.NOMBRES || ''} ${d.APELLIDOS || ''}`;
             
+            const statusBadge = d.Estado === "DESACTIVO" 
+                ? '<span class="badge bg-secondary">DESACTIVO</span>' 
+                : '<span class="badge bg-success">ACTIVO</span>';
+            
             // Variables de control de botones
             let botonesHtml = "";
 
@@ -181,6 +193,9 @@ function loadAdminList() {
                 // --- VISTA SUPERADMIN ---
                 // Acciones: Editar, Borrar y Dashboard Asistencia (vínculo externo admin.html)
                 botonesHtml = `
+                    <button class="btn btn-sm ${d.Estado === 'DESACTIVO' ? 'btn-success' : 'btn-secondary'}" onclick="toggleDocenteStatus('${d.id}', '${d.Estado || 'ACTIVO'}')">
+                        <i class="bi ${d.Estado === 'DESACTIVO' ? 'bi-check-circle' : 'bi-slash-circle'}"></i> ${d.Estado === 'DESACTIVO' ? 'Activar' : 'Desactivar'}
+                    </button>
                     <button class="btn btn-sm btn-primary" onclick="editDocente('${d.id}')">
                         <i class="bi bi-pencil-square"></i> Editar Perfil
                     </button>
@@ -197,6 +212,9 @@ function loadAdminList() {
                 const urlConDatos = `${URL_ASISTENCIA}?uid=${user.uid}&name=${encodeURIComponent(nombreDocente)}`;
                 
                 botonesHtml = `
+                    <button class="btn btn-sm ${d.Estado === 'DESACTIVO' ? 'btn-success' : 'btn-secondary'}" onclick="toggleDocenteStatus('${d.id}', '${d.Estado || 'ACTIVO'}')">
+                        <i class="bi ${d.Estado === 'DESACTIVO' ? 'bi-check-circle' : 'bi-slash-circle'}"></i> ${d.Estado === 'DESACTIVO' ? 'Activar' : 'Desactivar'}
+                    </button>
                     <button class="btn btn-sm btn-primary" onclick="editDocente('${d.id}')">
                         <i class="bi bi-pencil-square"></i> Editar Perfil
                     </button>
@@ -211,7 +229,15 @@ function loadAdminList() {
 
             html += `<tr>
                 <td>
-                    <strong>${nombreDocente}</strong><br>
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <strong>${nombreDocente}</strong> ${statusBadge}
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-1" title="Copiar ID" onclick="copyToClipboard('${d["ID-SENATI"] || ''}', 'ID-SENATI')">
+                            <i class="bi bi-person-badge"></i> ID
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-1" title="Copiar Correos" onclick="copyTeacherEmails('${d.Correo_Institucional || d["Correo institucional (@senati.pe)"] || ''}', '${d.Correo_Personal || d["Correo personal"] || ''}')">
+                            <i class="bi bi-envelope-at"></i> Correos
+                        </button>
+                    </div>
                     <small class="text-muted">${d.ESPECIALIDAD || ''}</small>
                 </td>
                 <td>
@@ -225,6 +251,58 @@ function loadAdminList() {
         container.innerHTML = html;
     });
 }
+
+function toggleDocenteStatus(id, currentStatus) {
+    const newStatus = currentStatus === "DESACTIVO" ? "ACTIVO" : "DESACTIVO";
+    db.collection('docentes').doc(id).update({ Estado: newStatus })
+        .then(() => loadAdminList())
+        .catch(err => alert("Error al cambiar estado: " + err.message));
+}
+
+function copyToClipboard(text, label) {
+    if (!text) return alert(`No hay ${label} registrado.`);
+    navigator.clipboard.writeText(text).then(() => {
+        alert(`${label} copiado: ${text}`);
+    });
+}
+
+function copyTeacherEmails(inst, pers) {
+    const emails = [inst, pers].filter(e => e && e.trim() !== "").join('; ');
+    if (!emails) return alert("No hay correos registrados para este docente.");
+    navigator.clipboard.writeText(emails).then(() => {
+        alert("Correos copiados: " + emails);
+    });
+}
+
+function copyAllEmails() {
+    if (!allDocentes || allDocentes.length === 0) {
+        alert("No hay datos de docentes disponibles para copiar.");
+        return;
+    }
+
+    const emailSet = new Set();
+    allDocentes.forEach(d => {
+        const inst = d.Correo_Institucional || d["Correo institucional (@senati.pe)"];
+        const pers = d.Correo_Personal || d["Correo personal"];
+        if (inst && inst.trim()) emailSet.add(inst.trim().toLowerCase());
+        if (pers && pers.trim()) emailSet.add(pers.trim().toLowerCase());
+    });
+
+    const emailList = Array.from(emailSet).join('; ');
+
+    if (emailList.length === 0) {
+        alert("No se encontraron correos electrónicos.");
+        return;
+    }
+
+    navigator.clipboard.writeText(emailList).then(() => {
+        alert(`¡Éxito! Se han copiado ${emailSet.size} correos únicos al portapapeles.`);
+    }).catch(err => {
+        console.error("Error al copiar:", err);
+        alert("No se pudo copiar al portapapeles.");
+    });
+}
+
 // =================================================================
 // GUARDAR DATOS Y SUBIDA A DRIVE
 // =================================================================
@@ -241,9 +319,8 @@ document.getElementById('docenteForm').addEventListener('submit', async function
     const apellidos = document.getElementById('form_apellidos').value;
     const nombreCompleto = `${nombres} ${apellidos}`.trim();
     
-    // CORRECCIÓN: Usar un ID que sí existe o validar su existencia
-    // Nota: 'hidden_file_input' está fuera del formulario en tu HTML
-    const fileInput = document.getElementById('form_file'); 
+    // Usar el input de archivo correcto
+    const fileInput = document.getElementById('hidden_file_input'); 
 
     try {
         btnSubmit.innerText = "Procesando...";
@@ -263,15 +340,16 @@ document.getElementById('docenteForm').addEventListener('submit', async function
             // CAMBIO AQUÍ: Cambiamos "/" por "_" para cumplir con las reglas de Firebase
             CFP_UFP_Escuela: document.getElementById('form_escuela').value, 
             Celular: document.getElementById('form_celular').value,
-            "Correo institucional (@senati.pe)": document.getElementById('form_correo_inst').value,
-            "Correo personal": document.getElementById('form_correo_pers').value,
+            Correo_Institucional: document.getElementById('form_correo_inst').value,
+            Correo_Personal: document.getElementById('form_correo_pers').value,
             DNI: document.getElementById('form_dni').value,
             ESPECIALIDAD: document.getElementById('form_especialidad').value,
             "ID-SENATI": document.getElementById('form_id_senati').value,
             NACIMIENTO: document.getElementById('form_nacimiento').value,
             Skills: document.getElementById('form_skills').value,
+            Estado: document.getElementById('form_estado').value,
             fotoURL: document.getElementById('form_foto_url').value,
-            ownerUID: document.getElementById('form_owner_uid').value,
+            ownerUID: document.getElementById('form_owner_uid').value || auth.currentUser.uid,
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -304,12 +382,21 @@ function editDocente(id) {
     document.getElementById('form_bio').value = d.BIO || "";
     document.getElementById('form_escuela').value = d["CFP_UFP_Escuela"] || "";
     document.getElementById('form_celular').value = d.Celular || "";
-    document.getElementById('form_correo_inst').value = d["Correo institucional (@senati.pe)"] || "";
-    document.getElementById('form_correo_pers').value = d["Correo personal"] || "";
+    document.getElementById('form_correo_inst').value = d.Correo_Institucional || d["Correo institucional (@senati.pe)"] || "";
+    document.getElementById('form_correo_pers').value = d.Correo_Personal || d["Correo personal"] || "";
     document.getElementById('form_dni').value = d.DNI || "";
     document.getElementById('form_especialidad').value = d.ESPECIALIDAD || "";
     document.getElementById('form_id_senati').value = d["ID-SENATI"] || "";
-    document.getElementById('form_nacimiento').value = d.NACIMIENTO || "";
+    document.getElementById('form_estado').value = d.Estado || "ACTIVO";
+
+    // Convertir formato DD-MM-YYYY a YYYY-MM-DD para compatibilidad con input type="date"
+    let fechaNac = d.NACIMIENTO || "";
+    if (/^\d{2}-\d{2}-\d{4}$/.test(fechaNac)) {
+        const [day, month, year] = fechaNac.split('-');
+        fechaNac = `${year}-${month}-${day}`;
+    }
+    document.getElementById('form_nacimiento').value = fechaNac;
+
     document.getElementById('form_skills').value = d.Skills || "";
     document.getElementById('form_foto_url').value = d.fotoURL || "";
     document.getElementById('form_owner_uid').value = d.ownerUID || "";
