@@ -213,9 +213,6 @@ function loadAdminList() {
                 const urlConDatos = `${URL_ASISTENCIA}?uid=${user.uid}&name=${encodeURIComponent(nombreDocente)}`;
                 
                 botonesHtml = `
-                    <button class="btn btn-sm ${d.Estado === 'DESACTIVO' ? 'btn-success' : 'btn-secondary'}" onclick="toggleDocenteStatus('${d.id}', '${d.Estado || 'ACTIVO'}')">
-                        <i class="bi ${d.Estado === 'DESACTIVO' ? 'bi-check-circle' : 'bi-slash-circle'}"></i> ${d.Estado === 'DESACTIVO' ? 'Activar' : 'Desactivar'}
-                    </button>
                     <button class="btn btn-sm btn-primary" onclick="editDocente('${d.id}')">
                         <i class="bi bi-pencil-square"></i> Editar Perfil
                     </button>
