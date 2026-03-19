@@ -135,23 +135,24 @@ function loadAdminList() {
     const user = auth.currentUser; 
     if (!user) return;
 
-    const SUPER_ADMIN_UID = "y8YTEQvXQGRNf4HECYHj3CBMyOA2";
+    // Array con los UIDs de los superadministradores
+    const SUPER_ADMIN_UIDS = ["y8YTEQvXQGRNf4HECYHj3CBMyOA2", "9oLWQmaPWrM0TOGCSZOEjE3Yq513"];
     const URL_ASISTENCIA = "https://jrodriguezfe.github.io/asistencia-cttc-senati/";
 
     const btnNuevoDocente = document.getElementById('btn-nuevo-docente');
     if (btnNuevoDocente) {
-        btnNuevoDocente.classList.toggle('d-none', user.uid !== SUPER_ADMIN_UID);
+        btnNuevoDocente.classList.toggle('d-none', !SUPER_ADMIN_UIDS.includes(user.uid));
     }
 
     const btnCopyEmails = document.getElementById('btn-copy-emails');
     if (btnCopyEmails) {
-        btnCopyEmails.classList.toggle('d-none', user.uid !== SUPER_ADMIN_UID);
+        btnCopyEmails.classList.toggle('d-none', !SUPER_ADMIN_UIDS.includes(user.uid));
     }
 
     container.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary"></div></div>';
 
     let query;
-    const isSuperAdmin = user.uid === SUPER_ADMIN_UID;
+    const isSuperAdmin = SUPER_ADMIN_UIDS.includes(user.uid);
 
     if (isSuperAdmin) {
         query = db.collection('docentes').orderBy('NOMBRES', 'asc');
