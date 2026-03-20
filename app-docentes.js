@@ -212,7 +212,7 @@ function loadAdminList() {
                 // Acciones: Editar, Plan de Sesión (Upload) y Asistencia (Personalizada)
                 const dniDocente = encodeURIComponent(d.DNI || "");
                 const idDocente = encodeURIComponent(d["ID-SENATI"] || "");
-                const urlConDatos = `${URL_ASISTENCIA}?uid=${user.uid}&name=${encodeURIComponent(nombreDocente)}&dni=${dniDocente}&id=${idDocente}`;
+                const urlConDatos = `${URL_ASISTENCIA}?uid=${user.uid}&name=${encodeURIComponent(nombreDocente)}&dni=${dniDocente}&id=${idDocente}&rol=Docente`;
                 
                 botonesHtml = `
                     <button class="btn btn-sm btn-primary" onclick="editDocente('${d.id}')">
