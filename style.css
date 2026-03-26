@@ -160,9 +160,6 @@ input[type="file"].form-control {
     .navbar-brand img {
         height: 50px !important;
     }
-    .d-flex.flex-wrap.gap-2 {
-        flex-direction: column; /* Botones apilados en móvil */
-    }
 }
 
 .btn-info {

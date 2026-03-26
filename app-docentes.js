@@ -174,6 +174,7 @@ function loadAdminList() {
                     Rol: ${isSuperAdmin ? 'Super Administrador' : 'Docente'}
                 </span>
             </div>
+            <div class="table-responsive">
             <table class="table align-middle">
                 <thead class="table-dark">
                     <tr><th>Docente</th><th>Acciones de Gestión</th></tr>
@@ -241,13 +242,13 @@ function loadAdminList() {
                     <small class="text-muted">${d.ESPECIALIDAD || ''}</small>
                 </td>
                 <td>
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="d-grid gap-2 d-xl-flex justify-content-xl-start">
                         ${botonesHtml}
                     </div>
                 </td>
             </tr>`;
         });
-        html += `</tbody></table>`;
+        html += `</tbody></table></div>`;
         container.innerHTML = html;
     });
 }
