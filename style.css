@@ -87,13 +87,13 @@ body {
     border-radius: 8px;
     font-weight: 600;
     padding: 10px 20px;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-acento-principal:hover {
     background-color: var(--color-acento-hover);
     color: white;
-    transform: scale(1.02);
+    transform: translateY(-2px);
 }
 
 /* Botón de Asistencia Especial */
@@ -102,7 +102,7 @@ body {
     border: none;
     color: #000;
     font-weight: bold;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .btn-warning:hover {
@@ -165,7 +165,7 @@ input[type="file"].form-control {
 .btn-info {
     background-color: #0dcaf0;
     border-color: #0dcaf0;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .btn-info:hover {

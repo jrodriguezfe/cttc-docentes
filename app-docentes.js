@@ -130,6 +130,10 @@ function cargarDirectorio() {
 // PANEL ADMINISTRATIVO
 // =================================================================
 
+// --- Helpers de Datos ---
+const getInstEmail = (d) => d.Correo_Institucional || d["Correo institucional (@senati.pe)"] || "";
+const getPersEmail = (d) => d.Correo_Personal || d["Correo personal"] || "";
+
 function loadAdminList() {
     const container = document.getElementById('admin-list-container');
     const user = auth.currentUser; 
@@ -235,7 +239,7 @@ function loadAdminList() {
                         <button class="btn btn-outline-secondary btn-sm py-0 px-1" title="Copiar ID" onclick="copyToClipboard('${d["ID-SENATI"] || ''}', 'ID-SENATI')">
                             <i class="bi bi-person-badge"></i> ID
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm py-0 px-1" title="Copiar Correos" onclick="copyTeacherEmails('${d.Correo_Institucional || d["Correo institucional (@senati.pe)"] || ''}', '${d.Correo_Personal || d["Correo personal"] || ''}')">
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-1" title="Copiar Correos" onclick="copyTeacherEmails('${getInstEmail(d)}', '${getPersEmail(d)}')">
                             <i class="bi bi-envelope-at"></i> Correos
                         </button>
                     </div>
@@ -283,8 +287,8 @@ function copyAllEmails() {
 
     const emailSet = new Set();
     allDocentes.forEach(d => {
-        const inst = d.Correo_Institucional || d["Correo institucional (@senati.pe)"];
-        const pers = d.Correo_Personal || d["Correo personal"];
+        const inst = getInstEmail(d);
+        const pers = getPersEmail(d);
         if (inst && inst.trim()) emailSet.add(inst.trim().toLowerCase());
         if (pers && pers.trim()) emailSet.add(pers.trim().toLowerCase());
     });
@@ -383,8 +387,8 @@ function editDocente(id) {
     document.getElementById('form_bio').value = d.BIO || "";
     document.getElementById('form_escuela').value = d["CFP_UFP_Escuela"] || "";
     document.getElementById('form_celular').value = d.Celular || "";
-    document.getElementById('form_correo_inst').value = d.Correo_Institucional || d["Correo institucional (@senati.pe)"] || "";
-    document.getElementById('form_correo_pers').value = d.Correo_Personal || d["Correo personal"] || "";
+    document.getElementById('form_correo_inst').value = getInstEmail(d);
+    document.getElementById('form_correo_pers').value = getPersEmail(d);
     document.getElementById('form_dni').value = d.DNI || "";
     document.getElementById('form_especialidad').value = d.ESPECIALIDAD || "";
     document.getElementById('form_id_senati').value = d["ID-SENATI"] || "";
