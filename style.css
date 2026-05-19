@@ -160,6 +160,28 @@ input[type="file"].form-control {
     .navbar-brand img {
         height: 50px !important;
     }
+
+    /* Previene scroll horizontal causado por elementos largos */
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Asegura que los textos largos rompan línea en vez de desbordar */
+    .table-responsive {
+        word-break: break-word;
+    }
+}
+
+@media (max-width: 576px) {
+    .display-5 {
+        font-size: 1.75rem;
+    }
+    .navbar-brand span {
+        font-size: 1.1rem; /* Ajusta el título en el header para que quepa bien */
+    }
+    .admin-table {
+        padding: 0.75rem !important; /* Aprovecha el espacio de los bordes para la tabla */
+    }
 }
 
 .btn-info {
