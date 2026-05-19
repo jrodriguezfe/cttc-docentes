@@ -220,7 +220,7 @@ function loadAdminList() {
                 const urlConDatos = `${URL_ASISTENCIA}?uid=${user.uid}&name=${encodeURIComponent(nombreDocente)}&dni=${dniDocente}&id=${idDocente}&rol=Docente`;
                 
                 botonesHtml = `
-                    <button class="btn btn-sm btn-primary" onclick="editDocente('${d.id}')">
+                    <button class="btn btn-sm btn-primary" onclick="editDocente('${d.id}')" disabled>
                         <i class="bi bi-pencil-square"></i> Editar Perfil
                     </button>
                     <button class="btn btn-sm btn-info text-white fw-bold" onclick="triggerFileUpload('${d.id}', '${nombreDocente}')">
