@@ -110,7 +110,7 @@ function cargarDirectorio() {
                                 <small class="text-muted" style="font-size: 0.75rem;">${habilidades}</small>
                             </div>` : ''}
                             <hr>
-                            <div class="d-grid">
+                            <div class="d-grid gap-2">
                                 <a href="https://wa.me/51954622231?text=Hola,%20quisiera%20más%20información%20sobre%20el%20especialista%20${encodeURIComponent(nombreCompleto)}" 
                                    target="_blank" class="btn btn-outline-success border-2 fw-bold">
                                     <i class="bi bi-whatsapp"></i> Consultas
@@ -211,6 +211,9 @@ function loadAdminList() {
                     <a href="${URL_ASISTENCIA}admin.html" target="_blank" class="btn btn-sm btn-dark fw-bold">
                         <i class="bi bi-speedometer2"></i> Dashboard Asistencia
                     </a>
+                    <button class="btn btn-sm btn-acento-principal" onclick="verProgramacion('${d.DNI || ''}')">
+                        <i class="bi bi-calendar3"></i> Programación
+                    </button>
                 `;
             } else {
                 // --- VISTA DOCENTE ---
@@ -229,6 +232,9 @@ function loadAdminList() {
                     <a href="${urlConDatos}" target="_blank" class="btn btn-sm btn-warning fw-bold">
                         <i class="bi bi-calendar-check"></i> Asistencia
                     </a>
+                    <button class="btn btn-sm btn-acento-principal" onclick="verProgramacion('${d.DNI || ''}')">
+                        <i class="bi bi-calendar3"></i> Programación
+                    </button>
                 `;
             }
 
@@ -475,7 +481,205 @@ function triggerFileUpload(docId, nombreDocente) {
 }
 
 
+
+// =================================================================
+// PROGRAMACIÓN DOCENTE
+// =================================================================
+
+function parseDateStr(dateStr) {
+    if (!dateStr) return null;
+    if (dateStr.toDate) return dateStr.toDate(); // Si es Timestamp de Firestore
+    if (typeof dateStr === 'string') {
+        const parts = dateStr.trim().split(/[-/]/);
+        if (parts.length === 3) {
+            if (parts[0].length === 4) {
+                return new Date(`${parts[0]}-${parts[1]}-${parts[2]}T00:00:00`);
+            } else {
+                return new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00`);
+            }
+        }
+    }
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+async function verProgramacion(dni) {
+    if (!dni) {
+        alert("DNI no disponible para este docente.");
+        return;
+    }
+
+    // Limpiamos los espacios en blanco al inicio y al final por precaución
+    const cleanDni = String(dni).trim();
+
+    const modalElement = document.getElementById('modalProgramacion');
+    if (!modalElement) return;
+    
+    let modal = bootstrap.Modal.getInstance(modalElement);
+    if (!modal) modal = new bootstrap.Modal(modalElement);
+    
+    const container = document.getElementById('programacion-container');
+    
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-3 fw-bold text-muted">Buscando programación...</p></div>';
+    modal.show();
+
+    try {
+        // 1. Buscar en la colección 'docentes' de la nueva BD por DNI
+        const docentesRef = progDb.collection('docentes');
+        let docentesSnapshot = await docentesRef.where('DNI', '==', cleanDni).get();
+        
+        if (docentesSnapshot.empty && !isNaN(cleanDni)) {
+            // Intento alternativo en caso de que el DNI esté guardado como número
+            docentesSnapshot = await docentesRef.where('DNI', '==', Number(cleanDni)).get();
+        }
+        
+        // Intento alternativo en caso de que la columna se llame 'dni' (minúsculas)
+        if (docentesSnapshot.empty) {
+            docentesSnapshot = await docentesRef.where('dni', '==', cleanDni).get();
+        }
+        if (docentesSnapshot.empty && !isNaN(cleanDni)) {
+            docentesSnapshot = await docentesRef.where('dni', '==', Number(cleanDni)).get();
+        }
+
+        if (docentesSnapshot.empty) {
+            container.innerHTML = `<div class="alert alert-warning text-center m-3"><i class="bi bi-exclamation-triangle-fill fs-4 d-block mb-2"></i>No se encontró al docente con DNI <strong>${cleanDni}</strong> en la base de datos de programación. Verifique que el DNI coincida en ambas bases de datos.</div>`;
+            return;
+        }
+
+        const docenteDoc = docentesSnapshot.docs[0].data();
+
+        // Identificar el nombre del docente según los campos disponibles en la BD de programación
+        let nombreDocente = "";
+        if (docenteDoc.NOMBRES && docenteDoc.APELLIDOS) {
+            nombreDocente = `${docenteDoc.NOMBRES} ${docenteDoc.APELLIDOS}`;
+        } else if (docenteDoc.Nombres && docenteDoc.Apellidos) {
+            nombreDocente = `${docenteDoc.Nombres} ${docenteDoc.Apellidos}`;
+        } else if (docenteDoc.nombres && docenteDoc.apellidos) {
+            nombreDocente = `${docenteDoc.nombres} ${docenteDoc.apellidos}`;
+        } else {
+            nombreDocente = docenteDoc.Nombre || docenteDoc.nombre || docenteDoc.Docente || docenteDoc.docente || docenteDoc.NOMBRES || docenteDoc.Nombres || docenteDoc.nombres || docenteDoc['Nombre Completo'] || docenteDoc['NOMBRES Y APELLIDOS'] || "";
+        }
+        
+        nombreDocente = String(nombreDocente).trim();
+
+        if (!nombreDocente) {
+            console.error("Documento encontrado pero sin campo de nombre reconocido:", docenteDoc);
+            const campos = Object.keys(docenteDoc).join(', ');
+            container.innerHTML = `<div class="alert alert-warning text-center m-3"><i class="bi bi-exclamation-triangle-fill fs-4 d-block mb-2"></i>El registro con DNI <strong>${cleanDni}</strong> se encontró, pero no tiene un campo de nombre reconocido.<br><br><small class="d-block mt-2 text-muted"><strong>Campos disponibles en la BD:</strong> ${campos}</small></div>`;
+            return;
+        }
+
+        // 2. Buscar en la colección 'programaciones' usando el nombre
+        const progRef = progDb.collection('programaciones');
+        const progSnapshot = await progRef.where('Docente', '==', nombreDocente).get();
+
+        if (progSnapshot.empty) {
+            container.innerHTML = `<div class="alert alert-info text-center m-3"><i class="bi bi-calendar-x fs-4 d-block mb-2"></i>No hay programación registrada para <strong>${nombreDocente}</strong>.</div>`;
+            return;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const limitDate = new Date(today);
+        limitDate.setDate(today.getDate() + 30);
+
+        let programacionesArray = [];
+
+        progSnapshot.forEach(doc => {
+            const p = doc.data();
+            
+            // Capturamos los campos y asignamos fallbacks por si las columnas varían en mayúsculas/minúsculas
+            const nrc = p.NRC || p.nrc || 'N/A';
+            const modulo = p['MODULO-CURSO'] || p.Modulo || p.Curso || p.curso || 'No especificado';
+            const fFin = p['Fecha de fin'] || p.FechaFin || p.fecha_fin || 'N/A';
+            const fInicio = p['Fecha de inicio'] || p.FechaInicio || p.fecha_inicio || 'N/A';
+            const duracion = p.Duracion || p.duracion || 'N/A';
+            const horario = p.horario || p.Horario || 'N/A';
+
+            const fechaInicioDate = parseDateStr(fInicio);
+            const fechaFinDate = parseDateStr(fFin);
+
+            // Filtro: Cursos próximos a iniciar (desde la fecha de hoy hasta 30 días adelante)
+            let mostrar = false;
+            if (fechaInicioDate) {
+                if (fechaInicioDate >= today && fechaInicioDate <= limitDate) {
+                    mostrar = true;
+                }
+            } else {
+                mostrar = true; // Mostrar por defecto si el formato de fecha no es reconocible
+            }
+
+            if (!mostrar) return;
+
+            // Guardamos cada programación válida en un array para poder ordenarla después
+            programacionesArray.push({
+                modulo, nrc, fInicio, fFin, duracion, horario, fechaInicioDate
+            });
+        });
+
+        // Ordenamos el array: desde la fecha de inicio más cercana a la más lejana
+        programacionesArray.sort((a, b) => {
+            if (!a.fechaInicioDate && !b.fechaInicioDate) return 0;
+            if (!a.fechaInicioDate) return 1; // Si no hay fecha, lo mandamos al final
+            if (!b.fechaInicioDate) return -1;
+            return a.fechaInicioDate - b.fechaInicioDate; 
+        });
+
+        let programacionesHtml = '';
+        programacionesArray.forEach(item => {
+            programacionesHtml += `
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-body border-start border-4 border-success rounded bg-white">
+                        <h5 class="fw-bold text-dark mb-1">${item.modulo}</h5>
+                        <div class="mb-3"><span class="badge bg-secondary">NRC: ${item.nrc}</span></div>
+                        <div class="row text-muted small">
+                            <div class="col-sm-6 mb-2">
+                                <i class="bi bi-calendar-check text-success"></i> <strong class="text-dark">Inicio:</strong> ${item.fInicio}
+                            </div>
+                            <div class="col-sm-6 mb-2">
+                                <i class="bi bi-calendar-x text-danger"></i> <strong class="text-dark">Fin:</strong> ${item.fFin}
+                            </div>
+                            <div class="col-sm-6 mb-2">
+                                <i class="bi bi-clock-history text-warning"></i> <strong class="text-dark">Duración:</strong> ${item.duracion}
+                            </div>
+                            <div class="col-sm-6 mb-2">
+                                <i class="bi bi-alarm text-info"></i> <strong class="text-dark">Horario:</strong> ${item.horario}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (programacionesArray.length === 0) {
+            container.innerHTML = `<div class="alert alert-info text-center m-3"><i class="bi bi-calendar-check fs-4 d-block mb-2"></i><strong>${nombreDocente}</strong> no tiene programación dentro de los próximos 30 días.</div>`;
+        } else {
+            container.innerHTML = `
+                <div class="mb-4 text-center">
+                    <h5 class="text-acento fw-bold mb-0">${nombreDocente}</h5>
+                    <small class="text-muted text-uppercase fw-bold">Próximos 30 días</small>
+                </div>
+                ${programacionesHtml}
+            `;
+        }
+
+    } catch (error) {
+        console.error("Error al obtener programación:", error);
+        container.innerHTML = `<div class="alert alert-danger text-center m-3"><i class="bi bi-x-circle-fill fs-4 d-block mb-2"></i>Error al consultar la programación: ${error.message}</div>`;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     setupAuthStateListener();
     cargarDirectorio();
+
+    // Solución para advertencia de aria-hidden en el Modal de Programación
+    const modalElement = document.getElementById('modalProgramacion');
+    if (modalElement) {
+        modalElement.addEventListener('hide.bs.modal', function () {
+            if (document.activeElement && modalElement.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+        });
+    }
 });

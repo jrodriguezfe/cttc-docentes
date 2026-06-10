@@ -177,6 +177,24 @@
         </section>
         <input type="file" id="hidden_file_input" style="display: none;" accept=".pdf,.doc,.docx,.xls,.xlsx">
     </main>
+    
+    <!-- Modal Programación -->
+    <div class="modal fade" id="modalProgramacion" tabindex="-1" aria-labelledby="modalProgramacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-principal text-white">
+                    <h5 class="modal-title fw-bold" id="modalProgramacionLabel"><i class="bi bi-calendar3"></i> Programación a 30 días</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-light p-4" id="programacion-container">
+                    <!-- El contenido se cargará dinámicamente -->
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer class="site-footer mt-auto">
         <div class="container text-center">
@@ -200,6 +218,18 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+
+        // Inicialización de la segunda Base de Datos (Programaciones)
+        const progFirebaseConfig = {
+            apiKey: "AIzaSyB38Wbf0Q9YLz61vxQXVw1oSpMNyPVGy-c",
+            authDomain: "programacion-cttc.firebaseapp.com",
+            projectId: "programacion-cttc",
+            storageBucket: "programacion-cttc.firebasestorage.app",
+            messagingSenderId: "2776502914",
+            appId: "1:2776502914:web:6389898d92d7c4b5ba1a9b"
+        };
+        const progApp = firebase.initializeApp(progFirebaseConfig, "programacionApp");
+        const progDb = progApp.firestore();
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
