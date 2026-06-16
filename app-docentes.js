@@ -140,7 +140,7 @@ function loadAdminList() {
     if (!user) return;
 
     // Array con los UIDs de los superadministradores
-    const SUPER_ADMIN_UIDS = ["y8YTEQvXQGRNf4HECYHj3CBMyOA2", "9oLWQmaPWrM0TOGCSZOEjE3Yq513"];
+    const SUPER_ADMIN_UIDS = ["y8YTEQvXQGRNf4HECYHj3CBMyOA2", "Btb6GAagofV3hlawg0G7huzf6Vs1"];
     const URL_ASISTENCIA = "https://jrodriguezfe.github.io/asistencia-cttc-senati/";
 
     const btnNuevoDocente = document.getElementById('btn-nuevo-docente');
